@@ -32,6 +32,7 @@ struct HashTable {
 static void memAllocError();
 static uint32_t hash(char *key, size_t size);
 static void hashTableResize(HashTable *hashTable);
+static HashSlot *createHashSlot();
 static void hashTableSet(HashTable *hashTable, char *key, char *value);
 static const char *hashTableGet(HashTable *hashTable, char *key);
 static void hashTableDelete(HashTable *hashTable, char *key);
