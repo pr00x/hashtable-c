@@ -29,16 +29,6 @@ struct HashTable {
     size_t (*count)(HashTable *this);
 };
 
-static void memAllocError();
-static uint32_t hash(char *key, size_t size);
-static void hashTableResize(HashTable *hashTable);
-static void hashTableSet(HashTable *hashTable, char *key, char *value);
-static const char *hashTableGet(HashTable *hashTable, char *key);
-static void hashTableDelete(HashTable *hashTable, char *key);
-static _Bool hashTableHas(HashTable *hashTable, char *key);
-static void hashTableFree(HashTable *hashTable);
-static size_t hashTableSize(HashTable *hashTable);
-static size_t hashTableCount(HashTable *hashTable);
 HashTable *initHashTable(size_t initSize);
 
 #endif
