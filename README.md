@@ -132,7 +132,7 @@ int main(void) {
     hashTable->print(hashTable);
 
     // Free the memory allocated for the hash table
-    hashTable->free(hashTable);
+    hashTable->free(&hashTable);
 
     return 0;
 }

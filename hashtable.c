@@ -32,7 +32,7 @@ static uint32_t hash(char *key, size_t size) {
     uint32_t hashValue = 2166136261; // FNV offset basis
 
     for(size_t i = 0; key[i] != '\0'; i++) {
-        hashValue ^= key[i];
+        hashValue ^= (unsigned char)key[i];
         hashValue *= 16777619; // FNV prime
     }
 
@@ -52,27 +52,30 @@ static HashSlot *createHashSlot() {
     return hashSlot;
 }
 
-static void hashTableResize(HashTable *hashTable) {
-    void freeNewTable(HashSlot **table, size_t size) {
-        // Free the new hash table
-        for(size_t i = 0; i < size; i++)
-            if(table[i]) {
-                if(table[i]->key)
-                    free(table[i]->key);
-                if(table[i]->value)
-                    free(table[i]->value);
+static void freeNewTable(HashSlot **table, size_t size) {
+    // Free the new hash table
+    for(size_t i = 0; i < size; i++)
+        if(table[i]) {
+            if(table[i]->key)
+                free(table[i]->key);
+            if(table[i]->value)
+                free(table[i]->value);
 
-                free(table[i]);
-            }
+            free(table[i]);
+        }
 
+    if(table)
         free(table);
-    }
 
+    table = NULL;
+}
+
+static void hashTableResize(HashTable *hashTable) {
     size_t newSize = hashTable->size * 2;
     HashSlot **newTable = calloc(newSize, sizeof(HashSlot *));
 
     if(!newTable) {
-        hashTableFree(hashTable);
+        hashTableFree(&hashTable);
         memAllocError("new hash table");
 
         return;
@@ -93,7 +96,7 @@ static void hashTableResize(HashTable *hashTable) {
 
             if(!newTable[newIndex]) {
                 freeNewTable(newTable, newSize);
-                hashTableFree(hashTable);
+                hashTableFree(&hashTable);
                 memAllocError("new hash table slot");
 
                 return;
@@ -103,7 +106,7 @@ static void hashTableResize(HashTable *hashTable) {
 
             if(!newTable[newIndex]->key) {
                 freeNewTable(newTable, newSize);
-                hashTableFree(hashTable);
+                hashTableFree(&hashTable);
                 memAllocError("new hash table key");
 
                 return;
@@ -113,7 +116,7 @@ static void hashTableResize(HashTable *hashTable) {
             
             if(!newTable[newIndex]->value) {
                 freeNewTable(newTable, newSize);
-                hashTableFree(hashTable);
+                hashTableFree(&hashTable);
                 memAllocError("new hash table value");
 
                 return;
@@ -121,13 +124,24 @@ static void hashTableResize(HashTable *hashTable) {
 
             newTable[newIndex]->occupied = 1;
 
-            free(current->key);
-            free(current->value);
+            if(current->key) {
+                free(current->key);
+                current->key = NULL;
+            }
+
+            if(current->value) {
+                free(current->value);
+                current->value = NULL;
+            }
+            
+            free(current);
         }
     }
 
     // Free the old table and update the hash table with the new one
-    free(hashTable->table);
+    if(hashTable->table)
+        free(hashTable->table);
+
     hashTable->size = newSize;
     hashTable->table = newTable;
 }
@@ -137,8 +151,12 @@ static void hashTableSet(HashTable *hashTable, char *key, char *value) {
         fputs("Cannot set a value for an unallocated hash table.\n", stderr);
         return;
     }
-    else if (!key || !value) {
+    else if(!key || !value) {
         fputs("Key or value cannot be NULL.\n", stderr);
+        return;
+    }
+    else if(*key == '\0') {
+        fputs("Key cannot be an empty string.\n", stderr);
         return;
     }
 
@@ -162,7 +180,7 @@ static void hashTableSet(HashTable *hashTable, char *key, char *value) {
         hashTable->table[index] = createHashSlot();
 
         if(!hashTable->table[index]) {
-            hashTableFree(hashTable);
+            hashTableFree(&hashTable);
             memAllocError("hash slot");
 
             return;
@@ -179,21 +197,23 @@ static void hashTableSet(HashTable *hashTable, char *key, char *value) {
         current->key = strdup(key);
 
         if(!current->key) {
-            hashTableFree(hashTable);
+            hashTableFree(&hashTable);
             memAllocError("hash key");
 
             return;
         }
     }
     else {
-        if(current->value)
+        if(current->value) {
             free(current->value);
+            current->value = NULL;
+        }
     }
 
     current->value = strdup(value);
 
     if(!current->value) {
-        hashTableFree(hashTable);
+        hashTableFree(&hashTable);
         memAllocError("hash table value");
 
         return;
@@ -203,7 +223,7 @@ static void hashTableSet(HashTable *hashTable, char *key, char *value) {
 }
 
 static const char *hashTableGet(HashTable *hashTable, char *key) {
-    if(!hashTable || hashTable->elementCount == 0 || !key)
+    if(!hashTable || hashTable->elementCount == 0 || !key || *key == '\0')
         return NULL;
 
     size_t index = hash(key, hashTable->size);
@@ -220,7 +240,7 @@ static const char *hashTableGet(HashTable *hashTable, char *key) {
 }
 
 static void hashTableDelete(HashTable *hashTable, char *key) {
-    if(!hashTable || hashTable->elementCount == 0 || !key)
+    if(!hashTable || hashTable->elementCount == 0 || !key || *key == '\0')
         return;
 
     size_t index = hash(key, hashTable->size);
@@ -229,14 +249,19 @@ static void hashTableDelete(HashTable *hashTable, char *key) {
     while(hashTable->table[index] && hashTable->table[index]->occupied) {
         if(strcmp(hashTable->table[index]->key, key) == 0) {
             HashSlot *current = hashTable->table[index];
+            hashTable->table[index] = NULL; // Set the slot to NULL before freeing it
  
-            if(current->key)
+            if(current->key) {
                 free(current->key);
+                current->key = NULL;
+            }
             
-            if(current->value)
+            if(current->value) {
                 free(current->value);
+                current->value = NULL;                
+            }
             
-            current->occupied = 0;
+            free(current);            
             hashTable->elementCount--;
 
             break;
@@ -263,15 +288,22 @@ static _Bool hashTableHas(HashTable *hashTable, char *key) {
     return 0;
 }
 
-static void hashTableFree(HashTable *hashTable) {
+static void hashTableFree(HashTable **hashTablePtr) {
+    HashTable *hashTable = *hashTablePtr;
+
     if(!hashTable || !hashTable->table || hashTable->size == 0)
         return;
     
     for(size_t i = 0; i < hashTable->size; i++) {
         if(hashTable->table[i] && hashTable->table[i]->occupied) {
-            free(hashTable->table[i]->key);
-            free(hashTable->table[i]->value);
+            if(hashTable->table[i]->key)
+                free(hashTable->table[i]->key);
+    
+            if(hashTable->table[i]->value)
+                free(hashTable->table[i]->value);
+
             free(hashTable->table[i]);
+            hashTable->table[i] = NULL;
         }
     }
 
@@ -282,6 +314,9 @@ static void hashTableFree(HashTable *hashTable) {
     hashTable->elementCount = 0;
 
     free(hashTable);
+
+    // Set the caller's pointer to NULL 
+    *hashTablePtr = NULL;
 }
 
 static void hashTablePrint(HashTable *hashTable) {    
@@ -292,7 +327,7 @@ static void hashTablePrint(HashTable *hashTable) {
     
     for(size_t i = 0; i < hashTable->size; i++)
         if(hashTable->table[i] && hashTable->table[i]->occupied)
-            printf("%lu. {%s} -> {%s}\n", ++count, hashTable->table[i]->key, hashTable->table[i]->value);
+            printf("%zu. {%s} -> {%s}\n", ++count, hashTable->table[i]->key, hashTable->table[i]->value);
 }
 
 static size_t hashTableSize(HashTable *hashTable) {
@@ -320,6 +355,8 @@ HashTable *initHashTable(size_t initSize) {
         memAllocError("hash table struct");
         return NULL;
     }
+
+    initSize = initSize <= 0 ? 1 : initSize;
 
     hashTable->size = initSize;
     hashTable->elementCount = 0;
