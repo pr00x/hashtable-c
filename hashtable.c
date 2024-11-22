@@ -53,21 +53,6 @@ static HashSlot *createHashSlot() {
 }
 
 static void hashTableResize(HashTable *hashTable) {
-    void freeNewTable(HashSlot **table, size_t size) {
-        // Free the new hash table
-        for(size_t i = 0; i < size; i++)
-            if(table[i]) {
-                if(table[i]->key)
-                    free(table[i]->key);
-                if(table[i]->value)
-                    free(table[i]->value);
-
-                free(table[i]);
-            }
-
-        free(table);
-    }
-
     size_t newSize = hashTable->size * 2;
     HashSlot **newTable = calloc(newSize, sizeof(HashSlot *));
 
@@ -130,6 +115,21 @@ static void hashTableResize(HashTable *hashTable) {
     free(hashTable->table);
     hashTable->size = newSize;
     hashTable->table = newTable;
+}
+
+static void freeNewTable(HashSlot **table, size_t size) {
+    // Free the new hash table
+    for(size_t i = 0; i < size; i++)
+        if(table[i]) {
+            if(table[i]->key)
+                free(table[i]->key);
+            if(table[i]->value)
+                free(table[i]->value);
+
+            free(table[i]);
+        }
+
+    free(table);
 }
 
 static void hashTableSet(HashTable *hashTable, char *key, char *value) {
