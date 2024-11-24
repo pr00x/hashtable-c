@@ -18,6 +18,10 @@
     - Get the count of elements in the hash table
 */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "hashtable.h"
 
 #define LOAD_FACTOR_THRESHOLD 0.7
