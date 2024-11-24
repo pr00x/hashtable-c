@@ -1,6 +1,6 @@
-# Open Addressing Hash Table Library in C
+# Generic Open Addressing Hash Table Library in C
 
-The `Open Addressing Hash Table Library` in C implements a high-performance hash table using linear probing for collision resolution. It efficiently stores and retrieves key-value pairs with minimal overhead, leveraging the `FNV-1a (Fowler-Noll-Vo)` hash algorithm to compute hash values. This data structure is particularly suited for applications requiring fast lookups, insertions, and deletions with a focus on simplicity and scalability.
+The `Generic Open Addressing Hash Table Library` in C implements a high-performance hash table using linear probing for collision resolution. It efficiently stores and retrieves key-value pairs with minimal overhead, leveraging the `FNV-1a (Fowler-Noll-Vo)` hash algorithm to compute hash values. This data structure is particularly suited for applications requiring fast lookups, insertions, and deletions with a focus on simplicity and scalability.
 
 | Index |     Key     |   Value   |
 |-------|-------------|-----------|
@@ -12,14 +12,14 @@ The `Open Addressing Hash Table Library` in C implements a high-performance hash
 
 ## Features
 
-- 🛠️ Initialization of hash table  
-- ➕ Insertion of key-value pairs  
-- 🔍 Retrieval of values by key  
-- ❌ Deletion of key-value pairs  
-- 🔑 Check if a key exists in the hash table  
-- 🔄 Auto-resizing of the hash table  
-- 🧹 Freeing of the hash table  
-- 📏 Getting the size of the hash table (number of slots)  
+- 🛠️ Initialization of hash table
+- ➕ Insertion of key-value pairs
+- 🔍 Retrieval of values by key
+- ❌ Deletion of key-value pairs
+- 🔑 Check if a key exists in the hash table
+- 🔄 Auto-resizing of the hash table
+- 🧹 Freeing of the hash table
+- 📏 Getting the size of the hash table (number of slots)
 - 🔢 Getting the count of elements in the hash table
 
 ## Installation
@@ -91,16 +91,21 @@ sudo make clean uninstall
 int main(void) {
     // Initialize the hash table with an initial size of 10
     HashTable *hashTable = initHashTable(10);
+    int year = 2024;
 
     // Insert key-value pairs into the hash table (animal names and habitats)
     hashTable->set(hashTable, "lion", "savannah");
     hashTable->set(hashTable, "tiger", "forest");
     hashTable->set(hashTable, "elephant", "grassland");
+    hashTable->set(hashTable, "year", &year);
     hashTable->set(hashTable, "penguin", "antarctica");
     hashTable->set(hashTable, "kangaroo", "australian outback");
 
     // Retrieve and print the habitat for the "lion"
     printf("The lion lives in the: %s\n", hashTable->get(hashTable, "lion"));
+
+    // Retrieve and print the current year
+    printf("Current year: %d\n", *(int *)hashTable->get(hashTable, "year"));
 
     // Update the habitat of the "lion"
     hashTable->set(hashTable, "lion", "zoo");
@@ -128,9 +133,6 @@ int main(void) {
     // Print the count of elements currently in the hash table
     printf("Count of animals in hash table: %zu\n", hashTable->count(hashTable));
 
-    // Print the contents of the hash table
-    hashTable->print(hashTable);
-
     // Free the memory allocated for the hash table
     hashTable->free(&hashTable);
 
@@ -140,7 +142,7 @@ int main(void) {
 
 ### Performance and Efficiency
 
-The Open Addressing Hash Table is designed to offer high performance for common operations, including **insertion**, **deletion**, and **lookup**, while minimizing memory overhead. Its efficiency is mainly determined by the **hash function**, **collision resolution method**, and **dynamic resizing** mechanism. Below is a summary of how these factors contribute to the overall performance:
+The Generic Open Addressing Hash Table is designed to offer high performance for common operations, including **insertion**, **deletion**, and **lookup**, while minimizing memory overhead. Its efficiency is mainly determined by the **hash function**, **collision resolution method**, and **dynamic resizing** mechanism. Below is a summary of how these factors contribute to the overall performance:
 
 #### ⏱️ Time Complexity
 
@@ -169,6 +171,13 @@ While some operations, like resizing and rehashing, may temporarily increase the
 The hash table is scalable, meaning it can efficiently grow as the number of stored elements increases. The resizing mechanism ensures that the hash table can handle large datasets without significant performance loss. 
 
 By maintaining a low load factor and resizing dynamically, the hash table can handle a high number of elements while keeping operations efficient, even under heavy load.
+
+#### 🔑 Generic Data Storage
+The hash table is **generic**, allowing you to store any data type as values. Whether it's an **integer**, **float**, **struct**, or even **another hash table**, the hash table can handle it! The values are stored as `void *` pointers, meaning the hash table is flexible and can accommodate all kinds of data types.
+
+**Strings are Immutable**: The keys in the hash table must be strings (const char *), and they should remain immutable. This ensures that the keys do not change during their lifetime, preventing issues during lookups or resizing. Modifying the strings after insertion may lead to undefined behavior.
+
+**Store Any Data Type**: The values stored in the hash table can be any data type, provided that they are passed as pointers. Whether you’re storing simple types like integers or complex structures, the hash table can accommodate them all, making it a powerful tool for a wide range of applications.
 
 ## Author
 
