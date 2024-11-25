@@ -188,7 +188,7 @@ static void hashTableSet(HashTable *hashTable, const char *key, void *value) {
     current->occupied = true;
 }
 
-static const char *hashTableGet(HashTable *hashTable, const char *key) {
+static const void *hashTableGet(HashTable *hashTable, const char *key) {
     if(!hashTable || hashTable->elementCount == 0 || !key || *key == '\0')
         return NULL;
 

@@ -18,7 +18,7 @@ struct HashTable {
     HashSlot **table;
 
     void (*set)(HashTable *this, const char *key, void *value);
-    const char *(*get)(HashTable *this, const char *key);
+    const void *(*get)(HashTable *this, const char *key);
     void (*delete)(HashTable *this, const char *key);
     bool (*has)(HashTable *this, const char *key);
     void (*free)(HashTable **this);
@@ -32,7 +32,7 @@ static void hashTableResize(HashTable *hashTable);
 static HashSlot *createHashSlot();
 static void freeNewTable(HashSlot **table, size_t size);
 static void hashTableSet(HashTable *hashTable, const char *key, void *value);
-static const char *hashTableGet(HashTable *hashTable, const char *key);
+static const void *hashTableGet(HashTable *hashTable, const char *key);
 static void hashTableDelete(HashTable *hashTable, const char *key);
 static bool hashTableHas(HashTable *hashTable, const char *key);
 static void hashTableFree(HashTable **hashTablePtr);

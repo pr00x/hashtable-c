@@ -102,14 +102,14 @@ int main(void) {
     hashTable->set(hashTable, "kangaroo", "australian outback");
 
     // Retrieve and print the habitat for the "lion"
-    printf("The lion lives in the: %s\n", hashTable->get(hashTable, "lion"));
+    printf("The lion lives in the: %s\n", (const char *)hashTable->get(hashTable, "lion"));
 
     // Retrieve and print the current year
     printf("Current year: %d\n", *(int *)hashTable->get(hashTable, "year"));
 
     // Update the habitat of the "lion"
     hashTable->set(hashTable, "lion", "zoo");
-    printf("The updated lion lives in the: %s\n", hashTable->get(hashTable, "lion"));
+    printf("The updated lion lives in the: %s\n", (const char *)hashTable->get(hashTable, "lion"));
 
     // Check if "tiger" exists in the hash table
     if (hashTable->has(hashTable, "tiger"))
