@@ -155,7 +155,7 @@ static void hashTableSet(HashTable *hashTable, const char *key, void *value) {
     }
 
     if((float)hashTable->elementCount / (float)hashTable->size > LOAD_FACTOR_THRESHOLD)
-        hashTableResize(hashTable); // Change later
+        hashTableResize(hashTable);
     
     size_t index = hash(key, hashTable->size);
 
