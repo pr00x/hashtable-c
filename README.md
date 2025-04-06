@@ -89,52 +89,41 @@ sudo make clean uninstall
 #include "hashtable.h" // or <hashtable.h> if it's installed
 
 int main(void) {
-    // Initialize the hash table with an initial size of 10
-    HashTable *hashTable = initHashTable(10);
+    HashTable *ht = ht_init(10);
     int year = 2024;
 
-    // Insert key-value pairs into the hash table (animal names and habitats)
-    hashTable->set(hashTable, "lion", "savannah");
-    hashTable->set(hashTable, "tiger", "forest");
-    hashTable->set(hashTable, "elephant", "grassland");
-    hashTable->set(hashTable, "year", &year);
-    hashTable->set(hashTable, "penguin", "antarctica");
-    hashTable->set(hashTable, "kangaroo", "australian outback");
+    ht_set(ht, "lion", "savannah");
+    ht_set(ht, "tiger", "forest");
+    ht_set(ht, "elephant", "grassland");
+    ht_set(ht, "year", &year);
+    ht_set(ht, "penguin", "antarctica");
+    ht_set(ht, "kangaroo", "australian outback");
 
-    // Retrieve and print the habitat for the "lion"
-    printf("The lion lives in the: %s\n", (const char *)hashTable->get(hashTable, "lion"));
+    printf("The lion lives in the: %s\n", (const char *)ht_get(ht, "lion"));
+    printf("Current year: %d\n", *(int *)ht_get(ht, "year"));
 
-    // Retrieve and print the current year
-    printf("Current year: %d\n", *(int *)hashTable->get(hashTable, "year"));
+    ht_set(ht, "lion", "zoo");
+    printf("The updated lion lives in the: %s\n", (const char *)ht_get(ht, "lion"));
 
-    // Update the habitat of the "lion"
-    hashTable->set(hashTable, "lion", "zoo");
-    printf("The updated lion lives in the: %s\n", (const char *)hashTable->get(hashTable, "lion"));
-
-    // Check if "tiger" exists in the hash table
-    if (hashTable->has(hashTable, "tiger"))
+    if (ht_has(ht, "tiger"))
         puts("The tiger is in the hash table!");
     else
         puts("The tiger is not in the hash table.\n");
 
-    // Delete the "penguin" entry from the hash table
-    hashTable->delete(hashTable, "penguin");
+    ht_delete(ht, "penguin");
     puts("Deleted the penguin entry.");
 
-    // Check if "penguin" still exists after deletion
-    if (hashTable->has(hashTable, "penguin"))
+    if (ht_has(ht, "penguin"))
         puts("The penguin is still in the hash table!");
     else
         puts("The penguin has been deleted from the hash table.");
 
-    // Print the size of the hash table (number of slots)
-    printf("Size of hash table: %zu\n", hashTable->getSize(hashTable));
+    printf("Size of hash table: %zu\n", ht_size(ht));
 
-    // Print the count of elements currently in the hash table
-    printf("Count of animals in hash table: %zu\n", hashTable->count(hashTable));
+    printf("Count of animals in hash table: %zu\n", ht_count(ht));
 
     // Free the memory allocated for the hash table
-    hashTable->free(&hashTable);
+    ht_free(&ht);
 
     return 0;
 }
@@ -181,7 +170,7 @@ The hash table is **generic**, allowing you to store any data type as values. Wh
 
 ## Author
 
-[@ProX](https://www.github.com/pr00x)
+[@prox](https://www.github.com/pr00x)
 
 ## Contributing
 

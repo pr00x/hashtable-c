@@ -4,40 +4,27 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define LOAD_FACTOR_THRESHOLD 0.7
+#define TOMBSTONE ((HashSlot *)(intptr_t)-1)
+
 typedef struct {
     const char *key;
     void *value;
-    bool occupied;
 } HashSlot;
 
-typedef struct HashTable HashTable;
-
-struct HashTable {
+typedef struct HashTable {
     size_t size;
-    size_t elementCount;
+    size_t element_count;
     HashSlot **table;
+} HashTable;
 
-    void (*set)(HashTable *this, const char *key, void *value);
-    const void *(*get)(HashTable *this, const char *key);
-    void (*delete)(HashTable *this, const char *key);
-    bool (*has)(HashTable *this, const char *key);
-    void (*free)(HashTable **this);
-    size_t (*getSize)(HashTable *this);
-    size_t (*count)(HashTable *this);
-};
-
-static void memAllocError(const char *err);
-static uint32_t hash(const char *key, size_t size);
-static void hashTableResize(HashTable *hashTable);
-static HashSlot *createHashSlot();
-static void freeNewTable(HashSlot **table, size_t size);
-static void hashTableSet(HashTable *hashTable, const char *key, void *value);
-static const void *hashTableGet(HashTable *hashTable, const char *key);
-static void hashTableDelete(HashTable *hashTable, const char *key);
-static bool hashTableHas(HashTable *hashTable, const char *key);
-static void hashTableFree(HashTable **hashTablePtr);
-static size_t hashTableSize(HashTable *hashTable);
-static size_t hashTableCount(HashTable *hashTable);
-HashTable *initHashTable(size_t initSize);
+bool ht_set(HashTable *ht, const char *key, void *value);
+const void *ht_get(HashTable *ht, const char *key);
+void ht_delete(HashTable *ht, const char *key);
+bool ht_has(HashTable *ht, const char *key);
+void ht_free(HashTable **ht_ptr);
+size_t ht_size(HashTable *ht);
+size_t ht_count(HashTable *ht);
+HashTable *ht_init(size_t initSize);
 
 #endif
