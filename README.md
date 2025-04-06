@@ -119,7 +119,6 @@ int main(void) {
         puts("The penguin has been deleted from the hash table.");
 
     printf("Size of hash table: %zu\n", ht_size(ht));
-
     printf("Count of animals in hash table: %zu\n", ht_count(ht));
 
     // Free the memory allocated for the hash table
