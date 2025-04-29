@@ -105,18 +105,22 @@ int main(void) {
     ht_set(ht, "lion", "zoo");
     printf("The updated lion lives in the: %s\n", (const char *)ht_get(ht, "lion"));
 
-    if (ht_has(ht, "tiger"))
+    if(ht_has(ht, "tiger")) {
         puts("The tiger is in the hash table!");
-    else
+    }
+    else {
         puts("The tiger is not in the hash table.\n");
+    }
 
     ht_delete(ht, "penguin");
     puts("Deleted the penguin entry.");
 
-    if (ht_has(ht, "penguin"))
+    if(ht_has(ht, "penguin")) {
         puts("The penguin is still in the hash table!");
-    else
+    }
+    else {
         puts("The penguin has been deleted from the hash table.");
+    }
 
     printf("Size of hash table: %zu\n", ht_size(ht));
     printf("Count of animals in hash table: %zu\n", ht_count(ht));

@@ -1,6 +1,6 @@
 /*
     Generic Open Addressing Hash Table Implementation in C
-    Author: prox
+    Author: Jovan Bogovac
     
     Description:
     This implementation provides a robust and efficient open addressing hash table 
@@ -70,8 +70,9 @@ static uint32_t hash(const char *key, size_t size) {
 static HashSlot *create_hash_slot() {
     HashSlot *hash_slot = malloc(sizeof(HashSlot));
 
-    if(!hash_slot)
+    if(!hash_slot) {
         return NULL;
+    }
 
     hash_slot->key = NULL;
     hash_slot->value = NULL;
@@ -81,9 +82,11 @@ static HashSlot *create_hash_slot() {
 
 static void free_new_table(HashSlot **table, size_t size) {
     // Free the new hash table
-    for(size_t i = 0; i < size; i++)
-        if(table[i])
+    for(size_t i = 0; i < size; i++) {
+        if(table[i]) {
             free(table[i]);
+        }
+    }
 
     free(table);
     table = NULL;
@@ -98,8 +101,9 @@ static bool ht_resize(HashTable *ht) {
     size_t new_size = ht->size * 2;
     HashSlot **new_table = calloc(new_size, sizeof(HashSlot *));
 
-    if(!new_table)
+    if(!new_table) {
         return false;
+    }
 
     for(size_t i = 0; i < ht->size; i++) {
         HashSlot *current = ht->table[i];
@@ -108,8 +112,9 @@ static bool ht_resize(HashTable *ht) {
             uint32_t new_index = hash(current->key, new_size);
 
             // Linear probing for an empty slot
-            while(new_table[new_index])
+            while(new_table[new_index]) {
                 new_index = (new_index + 1) % new_size;
+            }
 
             // Create a new hash slot
             new_table[new_index] = create_hash_slot();
@@ -148,19 +153,21 @@ bool ht_set(HashTable *ht, const char *key, void *value) {
         return false;
     }
 
-    if((float)(ht->element_count + 1) / (float)ht->size > LOAD_FACTOR_THRESHOLD)
+    if((float)(ht->element_count + 1) / (float)ht->size > LOAD_FACTOR_THRESHOLD) {
         if(!ht_resize(ht)) {
             fprintf(stderr, "Hash table resize failed, cannot insert key '%s'.\n", key);
             return false;
         }
+    }
     
     uint32_t index = hash(key, ht->size);
     size_t first_tombstone = SIZE_MAX;
 
     while(ht->table[index]) {
         if(ht->table[index] == TOMBSTONE) {
-            if(first_tombstone == SIZE_MAX)
+            if(first_tombstone == SIZE_MAX) {
                 first_tombstone = index;
+            }
         }
         else if(strcmp(ht->table[index]->key, key) == 0) {
             ht->table[index]->value = value;
@@ -173,8 +180,9 @@ bool ht_set(HashTable *ht, const char *key, void *value) {
     size_t insert_index = (first_tombstone != SIZE_MAX) ? first_tombstone : index;
     HashSlot *slot = create_hash_slot();
 
-    if(!slot)
+    if(!slot) {
         return false;
+    }
 
     slot->key = key;
     slot->value = value;
@@ -186,15 +194,17 @@ bool ht_set(HashTable *ht, const char *key, void *value) {
 }
 
 const void *ht_get(HashTable *ht, const char *key) {
-    if(!ht || ht->element_count == 0 || !key || *key == '\0')
+    if(!ht || ht->element_count == 0 || !key || *key == '\0') {
         return NULL;
+    }
 
     uint32_t index = hash(key, ht->size);
 
     // Linear probing to find the key
     while(ht->table[index]) {
-        if(ht->table[index] != TOMBSTONE && strcmp(ht->table[index]->key, key) == 0)
+        if(ht->table[index] != TOMBSTONE && strcmp(ht->table[index]->key, key) == 0) {
             return ht->table[index]->value;
+        }
 
         index = (index + 1) % ht->size;
     }
@@ -203,8 +213,9 @@ const void *ht_get(HashTable *ht, const char *key) {
 }
 
 void ht_delete(HashTable *ht, const char *key) {
-    if(!ht || ht->element_count == 0 || !key || *key == '\0')
+    if(!ht || ht->element_count == 0 || !key || *key == '\0') {
         return;
+    }
 
     uint32_t index = hash(key, ht->size);
 
@@ -223,15 +234,17 @@ void ht_delete(HashTable *ht, const char *key) {
 }
 
 bool ht_has(HashTable *ht, const char *key) {
-    if(!ht || ht->element_count == 0 || !key || *key == '\0')
+    if(!ht || ht->element_count == 0 || !key || *key == '\0') {
         return false;
+    }
 
     uint32_t index = hash(key, ht->size);
 
     // Linear probing to find the key
     while(ht->table[index]) {
-        if(ht->table[index] != TOMBSTONE && strcmp(ht->table[index]->key, key) == 0)
+        if(ht->table[index] != TOMBSTONE && strcmp(ht->table[index]->key, key) == 0) {
             return true;
+        }
 
         index = (index + 1) % ht->size;
     }
@@ -240,8 +253,9 @@ bool ht_has(HashTable *ht, const char *key) {
 }
 
 void ht_free(HashTable **ht_ptr) {
-    if(!ht_ptr || !*ht_ptr)
+    if(!ht_ptr || !*ht_ptr) {
         return;
+    }
 
     HashTable *ht = *ht_ptr;
 
